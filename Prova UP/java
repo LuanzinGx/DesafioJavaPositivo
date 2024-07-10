@@ -1,0 +1,135 @@
+package controller;
+
+import java.util.List;
+import model.*;
+import view.*;
+import util.InputUtil;
+
+public class TarefasController {
+    private TarefasView tarefasView;
+    private GerenciadorDeTarefas gerenciadorDeTarefas;
+
+    public TarefasController(GerenciadorDeTarefas gerenciadorDeTarefas, TarefasView tarefasView) {
+        this.gerenciadorDeTarefas = gerenciadorDeTarefas;
+        this.tarefasView = tarefasView;
+    }
+
+    public void menuTarefas() {
+        int op = -1;
+        while (op != 7) {
+            op = this.tarefasView.menuTarefas();
+            switch (op) {
+                case 1:
+                    criarTarefa();
+                    break;
+                case 2:
+                    editarTarefa();
+                    break;
+                case 3:
+                    atualizarStatus();
+                    break;
+                case 5:
+                    visualizarTarefa();
+                    break;
+                case 6:
+                    removerTarefa();
+                    break;
+                case 7:
+                    System.out.println("Voltando ao menu principal...");
+                    break;
+                default:
+                    System.out.println("Opção inválida. Tente novamente.");
+            }
+        }
+    }
+
+    private void criarTarefa() {
+        String nome = InputUtil.getInputString("Nome da Tarefa: ");
+        String descricao = InputUtil.getInputString("Descrição: ");
+        StatusDaTarefa status = StatusDaTarefa.FAZER;
+        
+        Tarefa novaTarefa = new Tarefa(nome, descricao, status);
+        gerenciadorDeTarefas.adicionarTarefa(novaTarefa);
+        System.out.println("Tarefa adicionada com sucesso!");
+    }
+
+    private void editarTarefa() {
+        List<Tarefa> listaTarefas = gerenciadorDeTarefas.getTasks();
+        tarefasView.mostrarListaDeTarefas(listaTarefas);
+        
+        int index = InputUtil.getInputInt("Escolha o índice da tarefa para editar: ");
+        if (index >= 0 && index < listaTarefas.size()) {
+            Tarefa tarefa = listaTarefas.get(index);
+            String nome = InputUtil.getInputString("Novo nome da Tarefa: ");
+            String descricao = InputUtil.getInputString("Nova descrição: ");
+            
+            tarefa.setNomeTarefa(nome);
+            tarefa.setDescricao(descricao);
+            System.out.println("Tarefa editada com sucesso!");
+        } else {
+            System.out.println("Índice inválido.");
+        }
+    }
+
+    private void atualizarStatus() {
+        List<Tarefa> listaTarefas = gerenciadorDeTarefas.getTasks();
+        tarefasView.mostrarListaDeTarefas(listaTarefas);
+        
+        int index = InputUtil.getInputInt("Escolha o índice da tarefa para atualizar o status: ");
+        if (index >= 0 && index < listaTarefas.size()) {
+            Tarefa tarefa = listaTarefas.get(index);
+            System.out.println("Status atuais:");
+            System.out.println("1. FAZER");
+            System.out.println("2. FAZENDO");
+            System.out.println("3. FEITO");
+            
+            int statusChoice = InputUtil.getInputInt("Escolha o novo status: ");
+            StatusDaTarefa status = null;
+            switch (statusChoice) {
+                case 1:
+                    status = StatusDaTarefa.FAZER;
+                    break;
+                case 2:
+                    status = StatusDaTarefa.FAZENDO;
+                    break;
+                case 3:
+                    status = StatusDaTarefa.FEITO;
+                    break;
+                default:
+                    System.out.println("Opção inválida.");
+                    return;
+            }
+            
+            gerenciadorDeTarefas.atualizarStatus(tarefa, status);
+            System.out.println("Status atualizado com sucesso!");
+        } else {
+            System.out.println("Índice inválido.");
+        }
+    }
+
+    private void visualizarTarefa() {
+        List<Tarefa> listaTarefas = gerenciadorDeTarefas.getTasks();
+        tarefasView.mostrarListaDeTarefas(listaTarefas);
+        
+        int index = InputUtil.getInputInt("Escolha o índice da tarefa para visualizar: ");
+        if (index >= 0 && index < listaTarefas.size()) {
+            Tarefa tarefa = listaTarefas.get(index);
+            tarefasView.mostrarUmaTarefa(tarefa);
+        } else {
+            System.out.println("Índice inválido.");
+        }
+    }
+
+    private void removerTarefa() {
+        List<Tarefa> listaTarefas = gerenciadorDeTarefas.getTasks();
+        tarefasView.mostrarListaDeTarefas(listaTarefas);
+        
+        int index = InputUtil.getInputInt("Escolha o índice da tarefa para remover: ");
+        if (index >= 0 && index < listaTarefas.size()) {
+            listaTarefas.remove(index);
+            System.out.println("Tarefa removida com sucesso!");
+        } else {
+            System.out.println("Índice inválido.");
+        }
+    }
+}
